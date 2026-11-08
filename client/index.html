@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PROTOCOL OMEGA</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/vendor/three/build/three.module.js",
+        "three/addons/": "/vendor/three/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- Main menu -->
+  <div id="menu" class="screen">
+    <div class="panel">
+      <div class="logo">
+        <div class="logo-omega">Ω</div>
+        <h1>PROTOCOL OMEGA</h1>
+        <div class="tagline" data-i18n="tagline"></div>
+      </div>
+
+      <label><span data-i18n="name"></span>
+        <input id="in-name" maxlength="16" autocomplete="off" />
+      </label>
+
+      <div class="field-label" data-i18n="suit_color"></div>
+      <div id="swatches" class="swatches"></div>
+
+      <label><span data-i18n="accessory"></span>
+        <select id="in-accessory"></select>
+      </label>
+
+      <div class="buttons">
+        <button id="btn-create" class="primary" data-i18n="create"></button>
+      </div>
+      <div class="join-row">
+        <input id="in-code" maxlength="4" placeholder="CODE" autocomplete="off" />
+        <button id="btn-join" data-i18n="join"></button>
+      </div>
+      <div id="menu-error" class="error"></div>
+
+      <div class="menu-footer">
+        <button id="btn-lang" class="link"></button>
+        <span class="small" data-i18n="mic_note"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause / settings -->
+  <div id="pause" class="screen hidden">
+    <div class="panel">
+      <h2 data-i18n="paused"></h2>
+      <div class="room-code-big"><span data-i18n="room_code"></span> <b id="pause-code"></b></div>
+      <label><span data-i18n="sensitivity"></span><input id="set-sens" type="range" min="0.2" max="3" step="0.05" /></label>
+      <label><span data-i18n="voice_volume"></span><input id="set-voice" type="range" min="0" max="2" step="0.05" /></label>
+      <label><span data-i18n="voice_mode"></span>
+        <select id="set-voicemode">
+          <option value="open" data-i18n="voice_open"></option>
+          <option value="ptt" data-i18n="voice_ptt"></option>
+        </select>
+      </label>
+      <div class="buttons">
+        <button id="btn-resume" class="primary" data-i18n="resume"></button>
+        <button id="btn-leave" data-i18n="leave"></button>
+      </div>
+      <div class="controls" data-i18n="controls"></div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="hud-room"></div>
+    <div id="hud-players"></div>
+    <div id="crosshair"></div>
+    <div id="hud-bottom">
+      <div id="mic-indicator"></div>
+      <div id="stamina"><div id="stamina-fill"></div></div>
+    </div>
+    <div id="chat-log"></div>
+    <input id="chat-input" class="hidden" maxlength="140" />
+    <div id="click-to-play" class="hidden" data-i18n="click_to_play"></div>
+    <div id="toast"></div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

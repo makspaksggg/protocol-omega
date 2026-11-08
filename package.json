@@ -1,0 +1,18 @@
+{
+  "name": "protocol-omega",
+  "version": "0.1.0",
+  "description": "PROTOCOL OMEGA — co-op horror for up to 6 prisoners",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "three": "^0.170.0",
+    "ws": "^8.18.0"
+  },
+  "type": "module",
+  "private": true
+}
