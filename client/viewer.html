@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Model viewer</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0b0d09; color: #d9e4c4; font-family: monospace; overflow: hidden; }
+    canvas { display: block; width: 100%; height: 100%; }
+    #ui { position: fixed; top: 8px; left: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    button { font-family: monospace; background: #111; color: #d9e4c4; border: 1px solid #3b4a2a; padding: 4px 8px; cursor: pointer; }
+  </style>
+  <script type="importmap">
+    { "imports": { "three": "/vendor/three/build/three.module.js", "three/addons/": "/vendor/three/examples/jsm/" } }
+  </script>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="ui"></div>
+  <script type="module">
+    // Dev tool: shows every suit colour / accessory and animation state. ?anim=walk|run|crouch|idle|jump&talk=1&ps1=1&cam=close
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { HazmatModel, SUIT_COLORS, ACCESSORIES } from './src/hazmat.js';
+    import { PS1Renderer } from './src/ps1.js';
+
+    const q = new URLSearchParams(location.search);
+    let anim = q.get('anim') || 'idle';
+    const talk = q.get('talk') === '1';
+    const usePs1 = q.get('ps1') === '1';
+    const canvas = document.getElementById('c');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x15180f);
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 50);
+    const close = q.get('cam') === 'close';
+    camera.position.set(close ? 0.4 : 0, close ? 1.7 : 1.5, close ? 1.3 : 6.5);
+    let ps1r = null, renderer = null;
+    if (usePs1) ps1r = new PS1Renderer(canvas);
+    else { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); renderer.setPixelRatio(devicePixelRatio); }
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, close ? 1.62 : 1.0, 0);
+    controls.update();
+
+    scene.add(new THREE.HemisphereLight(0xdde8cc, 0x202418, 1.2));
+    const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(2, 4, 3); scene.add(key);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshLambertMaterial({ color: 0x2a2c26 }));
+    floor.rotation.x = -Math.PI / 2; scene.add(floor);
+
+    const models = [];
+    const n = close ? 1 : 6;
+    for (let i = 0; i < n; i++) {
+      const m = new HazmatModel({
+        color: SUIT_COLORS[i % SUIT_COLORS.length], number: 1000 + i * 1373, name: 'P' + i, accessory: ACCESSORIES[i],
+      }, { withNameTag: false });
+      m.root.position.x = close ? 0 : (i - (n - 1) / 2) * 1.0;
+      m.root.rotation.y = close ? 0.35 : 0.25;
+      scene.add(m.root);
+      models.push(m);
+    }
+
+    const ui = document.getElementById('ui');
+    for (const a of ['idle', 'walk', 'run', 'crouch', 'jump']) {
+      const b = document.createElement('button'); b.textContent = a; b.onclick = () => (anim = a); ui.appendChild(b);
+    }
+    function resize() {
+      const w = innerWidth, h = innerHeight;
+      if (ps1r) ps1r.resize(camera); else { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+    }
+    addEventListener('resize', resize); resize();
+
+    const clock = new THREE.Clock();
+    (function loop() {
+      requestAnimationFrame(loop);
+      const dt = Math.min(0.05, clock.getDelta());
+      const speed = { idle: 0, walk: 3.2, run: 5.6, crouch: 1.6, jump: 0 }[anim];
+      for (const m of models) m.animate(dt, { speed, crouch: anim === 'crouch', airborne: anim === 'jump', pitch: 0, talking: talk });
+      if (ps1r) ps1r.render(scene, camera, clock.elapsedTime); else renderer.render(scene, camera);
+    })();
+    window.__ready = true;
+  </script>
+</body>
+</html>
